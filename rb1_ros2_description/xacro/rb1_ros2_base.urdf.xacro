@@ -56,6 +56,7 @@
 	<xacro:property name="elevator_z" value="0.213" />
 
 	<xacro:arg name="prefix" default="robot_"/>
+    <xacro:arg name="robot_name" default="robot_"/>
 	<xacro:arg name="ros_planar_move_plugin" default="false"/>
 	<xacro:arg name="gpu" default="false"/>
     
@@ -116,7 +117,7 @@
 	</xacro:sensor_orbbec_astra>
 
 	<!-- Gazebo ros2 control plugins -->
-	<!-- <xacro:ros2_control/> -->
+	<xacro:rb1_diff_drive_system prefix="$(arg prefix)" robot_name="$(arg robot_name)"/>
 
 
 </robot>

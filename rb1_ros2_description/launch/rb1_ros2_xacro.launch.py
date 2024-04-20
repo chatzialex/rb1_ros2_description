@@ -1,12 +1,13 @@
 import os
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, RegisterEventHandler
 from launch.substitutions import Command, LaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python.packages import get_package_prefix
 from launch_ros.descriptions import ParameterValue
+from launch.event_handlers import OnProcessExit
 
 
 def generate_launch_description():
@@ -71,7 +72,34 @@ def generate_launch_description():
                    '-topic', robot_name_1+'/robot_description']
     )
 
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_state_broadcaster",
+                   "--controller-manager", robot_name_1 + "/controller_manager",
+                   "--controller-manager-timeout", "60"],
+    )
+
+    robot_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["rb1_base_controller", "-c", robot_name_1 + "/controller_manager",
+                   "--controller-manager-timeout", "60"],
+    )
+
     return LaunchDescription([
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=spawn_robot1,
+                on_exit=[joint_state_broadcaster_spawner],
+            )
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=joint_state_broadcaster_spawner,
+                on_exit=[robot_controller_spawner],
+            )
+        ),
         gazebo,
         rsp_robot1,
         spawn_robot1,
