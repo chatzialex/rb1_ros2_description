@@ -25,6 +25,7 @@ endif()
 install(
   DIRECTORY
     launch
+	config
     meshes
 	urdf
 	xacro
