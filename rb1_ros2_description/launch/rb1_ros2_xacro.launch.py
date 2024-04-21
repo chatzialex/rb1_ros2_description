@@ -87,6 +87,13 @@ def generate_launch_description():
                    "--controller-manager-timeout", "60"],
     )
 
+    elevaror_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["rb1_elevator_controller", "-c", robot_name_1 + "/controller_manager",
+                   "--controller-manager-timeout", "60"],
+    )
+
     return LaunchDescription([
         RegisterEventHandler(
             event_handler=OnProcessExit(
@@ -98,6 +105,12 @@ def generate_launch_description():
             event_handler=OnProcessExit(
                 target_action=joint_state_broadcaster_spawner,
                 on_exit=[robot_controller_spawner],
+            )
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=joint_state_broadcaster_spawner,
+                on_exit=[elevaror_controller_spawner],
             )
         ),
         gazebo,
